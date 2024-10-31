@@ -4,11 +4,13 @@ import time
 
 PORT = 5002  # Server2'nin portu
 
+
 def handle_client(client_socket):
     try:
         # İstemciden gelen mesajı al
         message = client_socket.recv(1024).decode('utf-8')
         print(f"Server3({threading.get_ident()}) üzerinde istemciden gelen mesaj: {message}")
+
 
         # İstemciye cevap gönder
         response = "55 TAMM"
@@ -32,11 +34,12 @@ def start_server():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind(('localhost', PORT))
     server_socket.listen()
-    print(f"Server2 {PORT} portunda çalışıyor")
+
+    print(f"server3 {PORT} portunda çalışıyor")
 
     # Diğer sunuculara ping gönder
-    threading.Thread(target=ping_other_server, args=("localhost", 5000)).start()  # Server1'e ping
-    threading.Thread(target=ping_other_server, args=("localhost", 5001)).start()  # Server3'e ping
+    threading.Thread(target=ping_other_server, args=("localhost", 5001)).start()  # Server1'e ping
+    threading.Thread(target=ping_other_server, args=("localhost", 5002)).start()  # Server3'e ping
 
     # İstemci bağlantılarını dinle
     try:
