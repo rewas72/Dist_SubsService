@@ -1,20 +1,24 @@
 import socket
 import threading
 import time
+from message import Message  
 
-PORT = 5002  # Server2'nin portu
-
+PORT = 5002  
 
 def handle_client(client_socket):
     try:
-        # İstemciden gelen mesajı al
+        
         message = client_socket.recv(1024).decode('utf-8')
-        print(f"Server3({threading.get_ident()}) üzerinde istemciden gelen mesaj: {message}")
+        print(f"Server1({threading.get_ident()}) üzerinde istemciden gelen mesaj: {message}")
 
+        
+        if message == "STRT":
+            response_msg = Message(demand="STRT", response="YEP")
+        else:
+            response_msg = Message(demand="STRT", response="NOP")
 
-        # İstemciye cevap gönder
-        response = "55 TAMM"
-        client_socket.sendall(response.encode('utf-8'))
+        
+        client_socket.sendall(str(response_msg).encode('utf-8'))
     except Exception as e:
         print(f"İstemci işleme hatası: {e}")
     finally:
@@ -23,25 +27,25 @@ def handle_client(client_socket):
 def ping_other_server(host, port):
     while True:
         try:
+            
             with socket.create_connection((host, port), timeout=5):
                 print(f"{host} üzerindeki {port} portuna ping gönderildi")
         except Exception:
             print(f"{host} üzerindeki {port} portuna ping başarısız oldu, yeniden deniyor...")
         
-        time.sleep(10)  # 10 saniye bekle
+        time.sleep(10)  
 
 def start_server():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind(('localhost', PORT))
     server_socket.listen()
+    print(f"Server1 {PORT} portunda çalışıyor")
 
-    print(f"server3 {PORT} portunda çalışıyor")
+  
+    threading.Thread(target=ping_other_server, args=("localhost", 5000)).start()
+    threading.Thread(target=ping_other_server, args=("localhost", 5001)).start()
 
-    # Diğer sunuculara ping gönder
-    threading.Thread(target=ping_other_server, args=("localhost", 5001)).start()  # Server1'e ping
-    threading.Thread(target=ping_other_server, args=("localhost", 5002)).start()  # Server3'e ping
-
-    # İstemci bağlantılarını dinle
+    
     try:
         while True:
             client_socket, _ = server_socket.accept()

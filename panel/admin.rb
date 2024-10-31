@@ -1,38 +1,38 @@
 
-require 'open3'  # 'open3' modülünü dahil eder; bu modül ile komut satırı işlemleri yapabiliriz
-require 'timeout'  # Zaman aşımı için modülü ekliyoruz
+require 'open3'  
+require 'timeout'  
 
-# Configuration sınıfı tanımlanıyor
+
 class Configuration
-  attr_accessor :fault_tolerance_level, :method  # Bu iki özellik dışarıdan erişilebilir ve değiştirilebilir
+  attr_accessor :fault_tolerance_level, :method  
 
-  def initialize(fault_tolerance_level)  # Yapıcı metod (constructor) tanımlanıyor; fault_tolerance_level parametresi alır
-    @fault_tolerance_level = fault_tolerance_level  # Gelen fault_tolerance_level parametresi sınıfın örnek değişkenine atanır
-    @method = 'STRT'  # method değişkenine "STRT" değeri atanır; bu sunuculara gönderilecek başlangıç komutudur
+  def initialize(fault_tolerance_level)  
+    @fault_tolerance_level = fault_tolerance_level 
+    @method = 'STRT'  
   end
 end
 
-# dist_subs.conf dosyasını okuyan fonksiyon tanımlanıyor
+
 def read_config(file_path)
-  fault_tolerance_level = nil  # fault_tolerance_level değişkeni başta boş olarak tanımlanır
+  fault_tolerance_level = nil  
   
-  # Dosyanın her satırını okur
+ 
   File.foreach(file_path) do |line|
-    # Eğer satır "fault_tolerance_level = X" desenine uyuyorsa
+    
     if line =~ /fault_tolerance_level\s*=\s*(\d+)/
-      fault_tolerance_level = $1.to_i  # Sayı kısmını alır ve fault_tolerance_level değişkenine tam sayı olarak atar
+      fault_tolerance_level = $1.to_i  
     end
   end
-  fault_tolerance_level  # Bu değeri geri döndürür
+  fault_tolerance_level  
 end
 
-# Belirtilen sunucu betiğini başlatan fonksiyon
+
 def start_server(server_script, config)
-  # Sunucu başlatma komutunu oluşturur
-  command = "python C:/Users/Revas/Desktop/Dist_SubsService-main/dist_servers/#{server_script} #{config.method}"
+  
+  command = "python C:/Users/Merve/Dist_SubsService/dist_servers/#{server_script} #{config.method}"
 
   begin
-    Timeout.timeout(10) do  # 10 saniyelik bir zaman aşımı belirliyoruz
+    Timeout.timeout(10) do  
       Open3.popen3(command) do |_stdin, _stdout, stderr, wait_thr|
         exit_status = wait_thr.value
         if exit_status.success?
@@ -46,32 +46,30 @@ def start_server(server_script, config)
     puts "#{server_script} başlatılamadı: Komut zaman aşımına uğradı."
   end
   
-  # Komutu çalıştırır ve çıktısını alır
+  
   Open3.popen3(command) do |_stdin, _stdout, stderr, wait_thr|
-    exit_status = wait_thr.value  # Komutun çıkış durumunu kontrol eder
+    exit_status = wait_thr.value 
     
-    # Eğer komut başarıyla çalıştıysa, sunucu başlatıldı mesajı yazdırır
+    
     if exit_status.success?
       puts "#{server_script} başarıyla başlatıldı."
     else
-      # Başarısız olduysa, hata mesajını stderr'den alır ve yazdırır
+      
       puts "#{server_script} başlatılamadı: #{stderr.read}"
     end
   end
 end
 
-# dist_subs.conf dosyasını okur ve Configuration nesnesini oluşturur
-config_file = 'dist_subs.conf'  # Konfigürasyon dosyasının adı
-fault_tolerance_level = read_config(config_file)  # Dosyadan fault_tolerance_level değerini okur
 
-# Eğer bir fault_tolerance_level değeri mevcutsa, Configuration nesnesi oluşturulur
+config_file = 'dist_subs.conf'  
+fault_tolerance_level = read_config(config_file)  
+
 if fault_tolerance_level
-  config = Configuration.new(fault_tolerance_level)  # Configuration sınıfından bir nesne oluşturulur
+  config = Configuration.new(fault_tolerance_level)  
   
-  # Her bir sunucuyu başlatma komutu gönderilir
   %w[Server1.py Server2.py Server3.py].each do |server_script|
-    start_server(server_script, config)  # Sunucu başlatılır
+    start_server(server_script, config)  
   end
 else
-  puts "Hata: fault_tolerance_level bulunamadı."  # Eğer dosyada fault_tolerance_level bulunmazsa hata mesajı yazdırır
+  puts "Hata: fault_tolerance_level bulunamadı."  
 end

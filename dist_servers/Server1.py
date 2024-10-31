@@ -1,18 +1,24 @@
 import socket
 import threading
 import time
+from message import Message  
 
-PORT = 5000  # Server1'in portu
+PORT = 5000  
 
 def handle_client(client_socket):
     try:
-        # İstemciden gelen mesajı al
+        
         message = client_socket.recv(1024).decode('utf-8')
         print(f"Server1({threading.get_ident()}) üzerinde istemciden gelen mesaj: {message}")
 
-        # İstemciye cevap gönder
-        response = "55 TAMM"
-        client_socket.sendall(response.encode('utf-8'))
+        
+        if message == "STRT":
+            response_msg = Message(demand="STRT", response="YEP")
+        else:
+            response_msg = Message(demand="STRT", response="NOP")
+
+        
+        client_socket.sendall(str(response_msg).encode('utf-8'))
     except Exception as e:
         print(f"İstemci işleme hatası: {e}")
     finally:
@@ -21,12 +27,13 @@ def handle_client(client_socket):
 def ping_other_server(host, port):
     while True:
         try:
+            
             with socket.create_connection((host, port), timeout=5):
                 print(f"{host} üzerindeki {port} portuna ping gönderildi")
         except Exception:
             print(f"{host} üzerindeki {port} portuna ping başarısız oldu, yeniden deniyor...")
         
-        time.sleep(10)  # 10 saniye bekle
+        time.sleep(10)  
 
 def start_server():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -34,11 +41,11 @@ def start_server():
     server_socket.listen()
     print(f"Server1 {PORT} portunda çalışıyor")
 
-    # Diğer sunuculara ping gönder
+    
     threading.Thread(target=ping_other_server, args=("localhost", 5001)).start()
     threading.Thread(target=ping_other_server, args=("localhost", 5002)).start()
 
-    # İstemci bağlantılarını dinle
+   
     try:
         while True:
             client_socket, _ = server_socket.accept()
