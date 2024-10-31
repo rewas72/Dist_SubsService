@@ -2,7 +2,7 @@ import socket
 import threading
 import time
 
-PORT = 5001  # Server1'in portu
+PORT = 5000  # Server1'in portu
 
 def handle_client(client_socket):
     try:
@@ -35,8 +35,8 @@ def start_server():
     print(f"Server1 {PORT} portunda çalışıyor")
 
     # Diğer sunuculara ping gönder
+    threading.Thread(target=ping_other_server, args=("localhost", 5001)).start()
     threading.Thread(target=ping_other_server, args=("localhost", 5002)).start()
-    threading.Thread(target=ping_other_server, args=("localhost", 5003)).start()
 
     # İstemci bağlantılarını dinle
     try:
