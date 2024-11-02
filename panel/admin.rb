@@ -1,6 +1,34 @@
 
 require 'open3'  
 require 'timeout'  
+require 'socket'
+
+
+class Message
+  attr_accessor :demand, :response
+
+  def initialize(demand, response)
+    @demand = demand
+    @response = response
+  end
+
+  def to_s
+    "Demand: #{@demand}, Response: #{@response}"
+  end
+end
+
+class Capacity
+  attr_accessor :server_status, :timestamp
+
+  def initialize(server_status, timestamp)
+    @server_status = server_status
+    @timestamp = timestamp
+  end
+
+  def to_s
+    "Server Status: #{@server_status}, Timestamp: #{@timestamp}"
+  end
+end
 
 
 class Configuration
@@ -60,6 +88,25 @@ def start_server(server_script, config)
   end
 end
 
+def request_response(server, port, message)
+  
+  begin
+    socket = TCPSocket.new(server, port)
+    socket.puts("#{message.demand},#{message.response}")
+    response = socket.gets
+    return response ? Message.new(*response.strip.split(',')) : nil
+  rescue => e 
+    puts "Hata: #{e.message}"
+    return nil
+  ensure
+    socket.close if socket
+  end
+end
+
+def parse_response(response)
+  server_status, timestamp = response.strip.split(',')
+  [server_status.to_i, timestamp.to_i]
+end
 
 config_file = 'dist_subs.conf'  
 fault_tolerance_level = read_config(config_file)  
@@ -72,4 +119,30 @@ if fault_tolerance_level
   end
 else
   puts "Hata: fault_tolerance_level bulunamadı."  
+end
+
+
+servers = {'Server1'=> 5000 , 'Server2'=> 5001 , 'Server3'=> 5002}
+responses = {}
+
+servers.each do |server, port|
+  message = Message.new("STRT", nil)
+  response = request_response(server, port, message)
+  responses[server] = response if response&.response == "YEP"
+end
+
+loop do
+  responses.each do |server, _|
+    capacity_message = Message.new("CPCTY", nil)
+    response = request_response(server, servers[server], capacity_message)
+
+    if response
+      server_status, timestamp = parse_response(response.to_s)
+      capacity = Capacity.new(server_status, timestamp)
+      puts "#{server}'in kapasite durumu: #{capacity.to_s}"
+    else
+      puts "#{server}'in kapasitesi için yanıt alınamadı."
+    end
+  end
+  sleep(5)
 end

@@ -2,6 +2,7 @@ import socket
 import threading
 import time
 from message import Message  
+from capacity import Capacity
 
 PORT = 5000  
 
@@ -14,8 +15,15 @@ def handle_client(client_socket):
         
         if message == "STRT":
             response_msg = Message(demand="STRT", response="YEP")
+            print(f"Server1({threading.get_ident()}) üzerinde istemciden gelen mesaj sonucu: {response_msg}")
+            capacity = Capacity(server_status=1000, timestamp=int(time.time()))
+            response_msg = f"server1_status: {capacity.server_status}, timestamp: {capacity.timestamp}"
+            print(f"Server1({threading.get_ident()}) üzerinde kapasite yanıtı: {response_msg}")
+            
         else:
             response_msg = Message(demand="STRT", response="NOP")
+            print(f"Server1({threading.get_ident()}) üzerinde istemciden gelen mesaj sonucu: {response_msg}")
+
 
         
         client_socket.sendall(str(response_msg).encode('utf-8'))
