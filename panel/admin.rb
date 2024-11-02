@@ -57,10 +57,10 @@ end
 
 def start_server(server_script, config)
   
-  command = "python C:/Users/Merve/Dist_SubsService/dist_servers/#{server_script} #{config.method}"
+  command = "java C:/Users/Revas/Desktop/Dist_SubsService-main/dist_servers/#{server_script} #{config.method}"
 
   begin
-    Timeout.timeout(10) do  
+    Timeout.timeout(30) do  
       Open3.popen3(command) do |_stdin, _stdout, stderr, wait_thr|
         exit_status = wait_thr.value
         if exit_status.success?
@@ -114,7 +114,7 @@ fault_tolerance_level = read_config(config_file)
 if fault_tolerance_level
   config = Configuration.new(fault_tolerance_level)  
   
-  %w[Server1.py Server2.py Server3.py].each do |server_script|
+  %w[Server1.java Server2.java Server3.java].each do |server_script|
     start_server(server_script, config)  
   end
 else
