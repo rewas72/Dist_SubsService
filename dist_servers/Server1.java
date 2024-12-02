@@ -12,6 +12,9 @@ public class Server1 {
             new Thread(() -> connectToServer("localhost", port)).start();
         }
 
+        // Plotter'a her 5 saniyede bir veri gönder
+        new Thread(Server1::sendCapacityToPlotterPeriodically).start();
+
         // Sunucuyu başlat
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Server1 " + PORT + " portunda çalışıyor...");
@@ -52,4 +55,41 @@ public class Server1 {
             System.out.println("Server1 istemci hatası: " + e.getMessage());
         }
     }
+
+    private static void sendToPlotter(String message) {
+        String plotterHost = "localhost"; // Plotter'ın çalıştığı sunucu
+        int plotterPort = 6000; // Plotter.py'nin dinlediği port
+
+        try (Socket socket = new Socket(plotterHost, plotterPort);
+             PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
+            out.println(message); // Plotter'a mesaj gönder
+            System.out.println("Plotter'a gönderildi: " + message);
+        } catch (IOException e) {
+            System.out.println("Plotter ile iletişim hatası: " + e.getMessage());
+        }
+    }
+
+    // Sunucunun kapasitesini ve zaman damgasını Plotter'a düzenli aralıklarla gönderme
+private static void sendCapacityToPlotterPeriodically() {
+    while (true) {
+        try {
+            // Zaman damgası her seferinde yenileniyor
+            long timestamp = Instant.now().getEpochSecond();
+            String message = "Server1," + 1000 + "," + timestamp;
+            sendToPlotter(message);  // Plotter'a mesaj gönder
+            Thread.sleep(5000); // 5 saniye bekle
+
+            // Diğer sunucuların da benzer şekilde veri göndermesini sağlayın
+            for (int port : OTHER_PORTS) {
+                // Diğer sunuculara benzer şekilde mesaj gönder
+                message = "Server" + (port - 5000 + 1) + "," + 1000 + "," + timestamp;
+                sendToPlotter(message);
+            }
+        } catch (InterruptedException e) {
+            System.out.println("Zamanlama hatası: " + e.getMessage());
+        }
+    }
+}
+
+    
 }

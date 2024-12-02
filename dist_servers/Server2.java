@@ -12,6 +12,9 @@ public class Server2 {
             new Thread(() -> connectToServer("localhost", port)).start();
         }
 
+        // Plotter'a her 5 saniyede bir veri gönder
+        new Thread(Server2::sendCapacityToPlotterPeriodically).start();
+
         // Sunucuyu başlat
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Server2 " + PORT + " portunda çalışıyor...");
@@ -43,7 +46,7 @@ public class Server2 {
                 out.println("Demand: STRT, Response: YEP");
             } else if ("CPCTY".equals(message)) {
                 long timestamp = Instant.now().getEpochSecond();
-                out.println("server2_status: 1000, timestamp: " + timestamp);
+                out.println("Server2_status: 1000, timestamp: " + timestamp);
             } else {
                 out.println("Demand: " + message + ", Response: NOP");
             }
@@ -52,4 +55,39 @@ public class Server2 {
             System.out.println("Server2 istemci hatası: " + e.getMessage());
         }
     }
+
+    private static void sendToPlotter(String message) {
+        String plotterHost = "localhost"; // Plotter'ın çalıştığı sunucu
+        int plotterPort = 6000; // Plotter.py'nin dinlediği port
+
+        try (Socket socket = new Socket(plotterHost, plotterPort);
+             PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
+            out.println(message); // Plotter'a mesaj gönder
+            System.out.println("Plotter'a gönderildi: " + message);
+        } catch (IOException e) {
+            System.out.println("Plotter ile iletişim hatası: " + e.getMessage());
+        }
+    }
+
+    private static void sendCapacityToPlotterPeriodically() {
+        while (true) {
+            try {
+                // Zaman damgası her seferinde yenileniyor
+                long timestamp = Instant.now().getEpochSecond();
+                String message = "Server3," + 1000 + "," + timestamp;
+                sendToPlotter(message);  // Plotter'a mesaj gönder
+                Thread.sleep(5000); // 5 saniye bekle
+
+                // Diğer sunucuların da benzer şekilde veri göndermesini sağlayın
+                for (int port : OTHER_PORTS) {
+                    // Diğer sunuculara benzer şekilde mesaj gönder
+                    message = "Server" + (port - 5000 + 1) + "," + 1000 + "," + timestamp;
+                    sendToPlotter(message);
+                }
+            } catch (InterruptedException e) {
+                System.out.println("Zamanlama hatası: " + e.getMessage());
+            }
+        }
+    }
+    
 }
