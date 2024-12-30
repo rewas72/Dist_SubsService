@@ -3,19 +3,20 @@ import java.net.*;
 import java.time.Instant;
 
 public class Server1 {
-    private static final int PORT = 5000; // Server1 portu
-    private static final int[] OTHER_PORTS = {5001, 5002}; // Diğer sunucuların portları
+    private static final int PORT = 5000; 
+    private static final int[] OTHER_PORTS = {5001, 5002};
+    private static long lastTimestamp = Instant.now().getEpochSecond(); 
 
     public static void main(String[] args) {
-        // Diğer sunucularla bağlantı kur
+        
         for (int port : OTHER_PORTS) {
             new Thread(() -> connectToServer("localhost", port)).start();
         }
 
-        // Plotter'a her 5 saniyede bir veri gönder
+        
         new Thread(Server1::sendCapacityToPlotterPeriodically).start();
 
-        // Sunucuyu başlat
+        
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Server1 " + PORT + " portunda çalışıyor...");
             while (true) {
@@ -57,39 +58,29 @@ public class Server1 {
     }
 
     private static void sendToPlotter(String message) {
-        String plotterHost = "localhost"; // Plotter'ın çalıştığı sunucu
-        int plotterPort = 6000; // Plotter.py'nin dinlediği port
+        String plotterHost = "localhost"; 
+        int plotterPort = 6000; 
 
         try (Socket socket = new Socket(plotterHost, plotterPort);
              PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
-            out.println(message); // Plotter'a mesaj gönder
+            out.println(message);
             System.out.println("Plotter'a gönderildi: " + message);
         } catch (IOException e) {
             System.out.println("Plotter ile iletişim hatası: " + e.getMessage());
         }
     }
 
-    // Sunucunun kapasitesini ve zaman damgasını Plotter'a düzenli aralıklarla gönderme
-private static void sendCapacityToPlotterPeriodically() {
-    while (true) {
-        try {
-            // Zaman damgası her seferinde yenileniyor
-            long timestamp = Instant.now().getEpochSecond();
-            String message = "Server1," + 1000 + "," + timestamp;
-            sendToPlotter(message);  // Plotter'a mesaj gönder
-            Thread.sleep(5000); // 5 saniye bekle
-
-            // Diğer sunucuların da benzer şekilde veri göndermesini sağlayın
-            for (int port : OTHER_PORTS) {
-                // Diğer sunuculara benzer şekilde mesaj gönder
-                message = "Server" + (port - 5000 + 1) + "," + 1000 + "," + timestamp;
-                sendToPlotter(message);
+    private static void sendCapacityToPlotterPeriodically() {
+        while (true) {
+            try {
+                lastTimestamp += 5; 
+                int capacity = 950 + (int) (Math.random() * 100); 
+                String message = "Server1," + capacity + "," + lastTimestamp;
+                sendToPlotter(message); 
+                Thread.sleep(5000); 
+            } catch (InterruptedException e) {
+                System.out.println("Zamanlama hatası: " + e.getMessage());
             }
-        } catch (InterruptedException e) {
-            System.out.println("Zamanlama hatası: " + e.getMessage());
         }
     }
-}
-
-    
 }

@@ -1,21 +1,24 @@
 import java.io.*;
 import java.net.*;
 import java.time.Instant;
+import java.util.Random;
 
 public class Server3 {
-    private static final int PORT = 5002; // Server3 portu
-    private static final int[] OTHER_PORTS = {5000, 5001}; // Diğer sunucuların portları
+    private static final int PORT = 5002; 
+    private static final int[] OTHER_PORTS = {5000, 5001}; 
+    private static final Random random = new Random();
+    private static int capacity = 1000;
+    private static long lastTimestamp = Instant.now().getEpochSecond();
 
     public static void main(String[] args) {
-        // Diğer sunucularla bağlantı kur
+       
         for (int port : OTHER_PORTS) {
             new Thread(() -> connectToServer("localhost", port)).start();
         }
 
-        // Plotter'a her 5 saniyede bir veri gönder
         new Thread(Server3::sendCapacityToPlotterPeriodically).start();
 
-        // Sunucuyu başlat
+        
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Server3 " + PORT + " portunda çalışıyor...");
             while (true) {
@@ -46,7 +49,7 @@ public class Server3 {
                 out.println("Demand: STRT, Response: YEP");
             } else if ("CPCTY".equals(message)) {
                 long timestamp = Instant.now().getEpochSecond();
-                out.println("Server3_status: 1000, timestamp: " + timestamp);
+                out.println("server3_status: " + capacity + ", timestamp: " + timestamp);
             } else {
                 out.println("Demand: " + message + ", Response: NOP");
             }
@@ -57,12 +60,12 @@ public class Server3 {
     }
 
     private static void sendToPlotter(String message) {
-        String plotterHost = "localhost"; // Plotter'ın çalıştığı sunucu
-        int plotterPort = 6000; // Plotter.py'nin dinlediği port
+        String plotterHost = "localhost"; 
+        int plotterPort = 6000; 
 
         try (Socket socket = new Socket(plotterHost, plotterPort);
              PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
-            out.println(message); // Plotter'a mesaj gönder
+            out.println(message); 
             System.out.println("Plotter'a gönderildi: " + message);
         } catch (IOException e) {
             System.out.println("Plotter ile iletişim hatası: " + e.getMessage());
@@ -72,18 +75,19 @@ public class Server3 {
     private static void sendCapacityToPlotterPeriodically() {
         while (true) {
             try {
-                // Zaman damgası her seferinde yenileniyor
-                long timestamp = Instant.now().getEpochSecond();
-                String message = "Server2," + 1000 + "," + timestamp;
-                sendToPlotter(message);  // Plotter'a mesaj gönder
-                Thread.sleep(5000); // 5 saniye bekle
+                
+                capacity += random.nextInt(10) - 3; 
+                if (capacity < 900) capacity = 900;
+                if (capacity > 1100) capacity = 1100; 
 
-                // Diğer sunucuların da benzer şekilde veri göndermesini sağlayın
-                for (int port : OTHER_PORTS) {
-                    // Diğer sunuculara benzer şekilde mesaj gönder
-                    message = "Server" + (port - 5000 + 1) + "," + 1000 + "," + timestamp;
-                    sendToPlotter(message);
-                }
+                
+                lastTimestamp += 5; 
+
+                
+                String message = "Server3," + capacity + "," + lastTimestamp;
+                sendToPlotter(message); 
+                Thread.sleep(5000); 
+
             } catch (InterruptedException e) {
                 System.out.println("Zamanlama hatası: " + e.getMessage());
             }
