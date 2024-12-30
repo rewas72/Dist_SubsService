@@ -10,31 +10,31 @@ Diğer sunucularla bağlantı kurar ve her 5 saniyede bir rastgele kapasite veri
 Plotter Gönderimi: Rastgele kapasite ve zaman damgasını düzenli aralıklarla 6000 portunda çalışan bir Plotter'a gönderir.
 
 
-## Admin.rb ana İşlevler:
+# Admin.rb ana İşlevler:
 
 
 Bu Ruby programı, birden fazla Java sunucusunu başlatır, sunuculardan düzenli olarak kapasite bilgisi talep eder ve bu bilgileri Plotter.py'e iletir.
 
-# Konfigürasyon Okuma: 
+## Konfigürasyon Okuma: 
 dist_subs.conf dosyasından fault_tolerance_level değeri okunur.
-# Sunucu Başlatma: 
+## Sunucu Başlatma: 
 Server1, Server2, Server3 Java dosyaları çalıştırılır.
-# Veri İşleme: 
+## Veri İşleme: 
 Her 5 saniyede bir CPCTY talebiyle sunuculardan kapasite bilgisi alınır ve zaman damgasıyla birlikte Plotter'a gönderilir.
-# Hata Yönetimi: 
+## Hata Yönetimi: 
 Sunucuların ve Plotter'ın yanıt durumu kontrol edilip raporlanır.
 
 
-## Plotter.py ana işlevler
+# Plotter.py ana işlevler
 
 
-# Veri Alma: 
+## Veri Alma: 
 Sunucu, localhost üzerinde 6000 portunda dinler ve gelen verileri kabul eder.
-# Veri İşleme: 
+## Veri İşleme: 
 Gelen veriler (Server1,1000,1735558428 gibi) ayrıştırılır, kapasite ve zaman damgası bilgileri çıkarılır.
-# Grafik Çizimi: 
+## Grafik Çizimi: 
 Her sunucunun kapasite bilgisi zaman damgalarına göre matplotlib kullanılarak çizilir ve grafik sürekli güncellenir.
-# Hata Yönetimi: 
+## Hata Yönetimi: 
 Geçersiz veri formatları için uyarı mesajları gösterilir.
 
 Program, gerçek zamanlı olarak kapasite değişimlerini görselleştirir.
