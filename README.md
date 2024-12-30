@@ -44,12 +44,13 @@ Sunucu, localhost üzerinde 6000 portunda dinler ve gelen verileri kabul eder.
 Gelen veriler (Server1,1000,1735558428 gibi) ayrıştırılır, kapasite ve zaman damgası bilgileri çıkarılır.
 ## Grafik Çizimi: 
 Her sunucunun kapasite bilgisi zaman damgalarına göre matplotlib kullanılarak çizilir ve grafik sürekli güncellenir.
+<img src="image/2.jpg" width="500" height="200">
 ## Hata Yönetimi: 
 Geçersiz veri formatları için uyarı mesajları gösterilir.
 
 Program, gerçek zamanlı olarak kapasite değişimlerini görselleştirir.
 
-<img src="image/2.jpg" width="500" height="200">
+
 
 
 
