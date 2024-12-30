@@ -1,6 +1,6 @@
-#Dist_SubsService
+## Dist_SubsService
 
-## Server1 Server2 ve Server3 hakkında
+# Server1 Server2 ve Server3 hakkında
 Server1.java server2.java server3.java
 server1.java: 5000 numaralı port üzerinde istemci bağlantılarını dinler, diğer sunucularla (5001, 5002) bağlantı kurar.
 server2.java: 5001 numaralı port üzerinde istemci bağlantılarını dinler, diğer sunucularla (5000, 5002) bağlantı kurar.
