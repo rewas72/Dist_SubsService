@@ -9,6 +9,12 @@ Diğer sunucularla bağlantı kurar ve her 5 saniyede bir rastgele kapasite veri
 İstemci Mesajları: "STRT", "CPCTY" ve diğer talepleri işler, uygun cevaplar döner.
 Plotter Gönderimi: Rastgele kapasite ve zaman damgasını düzenli aralıklarla 6000 portunda çalışan bir Plotter'a gönderir.
 
+<img src="image/4.jpg" width="500" height="200">
+<img src="image/5.jpg" width="500" height="200">
+<img src="image/6.jpg" width="500" height="200">
+
+
+
 
 # Admin.rb ana İşlevler:
 
@@ -24,6 +30,10 @@ Her 5 saniyede bir CPCTY talebiyle sunuculardan kapasite bilgisi alınır ve zam
 ## Hata Yönetimi: 
 Sunucuların ve Plotter'ın yanıt durumu kontrol edilip raporlanır.
 
+<img src="image/1.jpg" width="500" height="200">
+<img src="image/3.jpg" width="500" height="200">
+
+
 
 # Plotter.py ana işlevler
 
@@ -38,6 +48,9 @@ Her sunucunun kapasite bilgisi zaman damgalarına göre matplotlib kullanılarak
 Geçersiz veri formatları için uyarı mesajları gösterilir.
 
 Program, gerçek zamanlı olarak kapasite değişimlerini görselleştirir.
+
+<img src="image/2.jpg" width="500" height="200">
+
 
 
 
