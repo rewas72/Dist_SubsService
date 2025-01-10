@@ -5,7 +5,8 @@
 22060358- Merve Nur Türk
 
 ### Sunum Videosu Linki
-https://www.youtube.com/watch?v=-zYXgd0Uh3c&ab_channel=revasak%C4%B1n
+https://youtu.be/-zYXgd0Uh3c
+
 
 # Server1 Server2 ve Server3 hakkında
 Server1.java server2.java server3.java
