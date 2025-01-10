@@ -1,5 +1,12 @@
 # Dist_SubsService
 
+### Ekip üyeleri
+22060396- Revas Akın
+22060358- Merve Nur Türk
+
+### Sunum Videosu Linki
+https://www.youtube.com/watch?v=-zYXgd0Uh3c&ab_channel=revasak%C4%B1n
+
 # Server1 Server2 ve Server3 hakkında
 Server1.java server2.java server3.java
 server1.java: 5000 numaralı port üzerinde istemci bağlantılarını dinler, diğer sunucularla (5001, 5002) bağlantı kurar.
